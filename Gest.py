@@ -6,7 +6,7 @@ import math
 from mediapipe.framework.formats import landmark_pb2
 import matplotlib.pyplot as plt
 import os
-
+import time
 
 class Fist_Recognizer:
     # def __init__(self):
@@ -57,7 +57,7 @@ class Fist_Recognizer:
         })
         
         self.script_directory = os.path.dirname(os.path.abspath(__file__))
-        self.path = self.script_directory + '/Fist_Recog.task'
+        self.path = self.script_directory + 'Model/Fist_Recog.task'
         self.base_options = python.BaseOptions(model_asset_path=self.path)
         options = vision.GestureRecognizerOptions(base_options=self.base_options)
         self.recognizer = vision.GestureRecognizer.create_from_options(options)
@@ -89,6 +89,7 @@ class Pinch_Recognizer:
         self.mp_hands = mp.solutions.hands
         self.hands = self.mp_hands.Hands()
         self.request_status = "idle"
+        self.pinch_start_time = None
 
     def process_frame(self, frame):
         frame = cv2.flip(frame, 1)
@@ -108,12 +109,22 @@ class Pinch_Recognizer:
                 pinch_threshold = 30 
 
                 if distance < pinch_threshold:
+                    if self.request_status != "isPinch":
+                        self.pinch_start_time = time.time()  
                     self.request_status = "isPinch"
                 else:
                     self.request_status = "Deactivated"
+                    self.pinch_start_time = None  
+
+
+        if self.request_status == "isPinch" and self.pinch_start_time is not None:
+            current_time = time.time()
+            pinch_duration = current_time - self.pinch_start_time
+            if pinch_duration > 1.0:
+                self.request_status = "hold"
 
         return self.request_status
-
+    
 class Peace_Detector:
     def __init__(self):
         self.mp_hands = mp.solutions.hands
