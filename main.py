@@ -30,8 +30,6 @@ class MainGUI:
         self.Get_Pinch_Stat = Pinch_Recognizer()
         self.Get_Peace_Stat = Peace_Detector()
 
-
-       
     @staticmethod
     def DestroyAll():
         widgets = Main.winfo_children()
@@ -190,6 +188,8 @@ class MainGUI:
                 pyautogui.hotkey('winleft', 'd')
             elif self.Pinch_Stat == "isPinch":
                 pyautogui.click(button='left')
+            elif self.Pinch_Stat == "hold":
+                pyautogui.mouseDown(button='left')  
             elif self.Peace_Stat == "isPeace":
                 pyautogui.hotkey('ctrl', 'winleft', 'o')
 
@@ -206,6 +206,7 @@ class MainGUI:
 
                     x, y = index_x, index_y
 
+                    # x = screen_width - x
                     pyautogui.moveTo(x, y)
 
             result_frame = cv2.add(Frame, canvas)
